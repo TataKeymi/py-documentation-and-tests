@@ -2,6 +2,7 @@ import tempfile
 import os
 
 from PIL import Image
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -14,7 +15,8 @@ from cinema.models import (Movie,
                            CinemaHall,
                            Genre,
                            Actor)
-from cinema.serializers import MovieListSerializer, MovieDetailSerializer
+from cinema.serializers import (MovieListSerializer,
+                                MovieDetailSerializer)
 
 MOVIE_URL = reverse("cinema:movie-list")
 MOVIE_SESSION_URL = reverse("cinema:moviesession-list")
@@ -176,7 +178,7 @@ class UnathenticatedMovieAPITests(TestCase):
 class AuthenticatedMovieAPITests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = get_user_model().objects.create_superuser(
+        self.user = get_user_model().objects.create_user(
             email="test@test.com",
             password="testpassword"
         )
@@ -263,7 +265,7 @@ class AuthenticatedMovieAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(serializer.data, res.data)
 
-    def create_movie_forbidden(self):
+    def test_create_movie_forbidden(self):
         payload = {
             "title": "Sample movie",
             "description": "Sample description",
@@ -276,7 +278,7 @@ class AuthenticatedMovieAPITests(TestCase):
 class AdminMovieAPITests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = get_user_model().objects.create_superuser(
+        self.user = get_user_model().objects.create_user(
             email="test@test.com",
             password="testpassword",
             is_staff=True
